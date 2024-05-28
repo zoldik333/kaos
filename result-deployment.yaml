@@ -1,32 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-deployment
+  name: result-deployment
   labels:
-    app: db
+    app: result
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: db
+      app: result
   template:
     metadata:
-      name: db
+      name: result-deployment
       labels:
-        app: db
+        app: result
     spec:
       containers:
-        - name: db
-          image: postgres:15.2-alpine
-          imagePullPolicy: IfNotPresent
+        - name: result
+          image: kaos-result
+          imagePullPolicy: Never
           ports:
-            - containerPort: 5432
+            - containerPort: 80
               protocol: TCP
           env:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   key: postgres-db
+                  name: config
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-host
+                  name: config
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-port
                   name: config
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -43,11 +53,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: db-service
+  name: result-service
 spec:
   selector:
-    app: db
+    app: result
   ports:
     - protocol: TCP
-      port: 5432
-      targetPort: 5432
+      port: 80
+      targetPort: 80

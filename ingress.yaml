@@ -6,12 +6,23 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-    - http:
+    - host: poll.com
+      http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
                 name: poll-service
+                port:
+                  number: 80
+    - host: result.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: result-service
                 port:
                   number: 80
