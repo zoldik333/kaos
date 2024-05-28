@@ -27,7 +27,7 @@ services:
     networks:
       - poll-tier
 
-    redis:
+  redis:
     image: redis:7.0.8-alpine
     restart: always
     depends_on:
@@ -45,7 +45,7 @@ services:
       - db
       - redis
     env_file:
-      - ./.env
+      - .env
     networks:
       - back-tier
 
