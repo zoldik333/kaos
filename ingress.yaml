@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: poll-ingress
+  name: front-ingress
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:

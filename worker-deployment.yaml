@@ -1,32 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db-deployment
+  name: worker-deployment
   labels:
-    app: db
+    app: worker
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: db
+      app: worker
   template:
     metadata:
-      name: db
+      name: worker-deployment
       labels:
-        app: db
+        app: worker
     spec:
       containers:
-        - name: db
-          image: postgres:15.2-alpine
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 5432
-              protocol: TCP
+        - name: worker
+          image: kaos-worker
+          imagePullPolicy: Never
           env:
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: redis-host
+                  name: config
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   key: postgres-db
+                  name: config
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-host
+                  name: config
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: postgres-port
                   name: config
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -38,28 +50,14 @@ spec:
                 secretKeyRef:
                   key: username
                   name: db-secret-basic-auth
-          volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgres-data
-            - mountPath: /docker-entrypoint-initdb.d
-              name: init-data
-      volumes:
-        - name: postgres-data
-          persistentVolumeClaim:
-            claimName: postgres-volume-claim
-        - name: init-data
-          configMap:
-            name: initdb-schema
       restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: db-service
+  name: worker-service
 spec:
   selector:
-    app: db
+    app: worker
   ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
+    - port: 8000
