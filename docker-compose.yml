@@ -15,8 +15,27 @@ services:
       - result-tier
       - back-tier
 
+# Db service for custom postgres image
+#  db:
+#    image: kaos-postgres
+#    build:
+#      context: ./postgres
+#      args:
+#        postgres_db: ${POSTGRES_DB}
+#        postgres_user: ${POSTGRES_USER}
+#        postgres_password: ${POSTGRES_PASSWORD}
+#    restart: always
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - db-data:/var/lib/postgres/data
+#    networks:
+#      - result-tier
+#      - back-tier
+
   poll:
-    build: poll/
+    image: kaos-poll
+    build: ./poll
     restart: always
     depends_on:
       - redis
@@ -39,7 +58,8 @@ services:
       - back-tier
 
   worker:
-    build: worker
+    image: kaos-worker
+    build: ./worker
     restart: always
     depends_on:
       - db
@@ -50,7 +70,8 @@ services:
       - back-tier
 
   result:
-    build: result/
+    image: kaos-result
+    build: ./result
     restart: always
     depends_on:
       - db
